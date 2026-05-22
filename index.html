@@ -46,19 +46,19 @@
       <section class="restaurant-bar" aria-label="Restaurant details">
         <div>
           <p>Tonight</p>
-          <strong>Fresh from the kitchen</strong>
+          <strong id="customer-service-status">Fresh from the kitchen</strong>
         </div>
         <div>
           <p>Minimum order</p>
-          <strong>No minimum</strong>
+          <strong id="customer-minimum">No minimum</strong>
         </div>
         <div>
           <p>Direct offer</p>
-          <strong>DIRECT10 over GBP 18</strong>
+          <strong id="customer-offer">DIRECT10 over GBP 18</strong>
         </div>
         <div>
           <p>Allergy note</p>
-          <strong>Call before ordering</strong>
+          <strong id="customer-contact">Call before ordering</strong>
         </div>
       </section>
 
@@ -144,6 +144,36 @@
               Delivery address
               <input name="address" type="text" placeholder="12 Dock Lane" />
             </label>
+            <div class="delivery-fields" id="delivery-fields" hidden>
+              <label>
+                Delivery postcode
+                <input name="postcode" type="text" placeholder="HD1 2AB" />
+              </label>
+              <p class="zone-note" id="zone-note"></p>
+            </div>
+            <div class="form-pair">
+              <label>
+                Order timing
+                <select name="timing">
+                  <option value="ASAP">ASAP</option>
+                  <option value="18:30">18:30</option>
+                  <option value="19:00">19:00</option>
+                  <option value="19:30">19:30</option>
+                </select>
+              </label>
+              <label>
+                Payment
+                <select name="payment">
+                  <option>Pay online</option>
+                  <option>Cash on collection</option>
+                  <option>Cash on delivery</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              Kitchen note
+              <textarea name="note" rows="2" placeholder="No onions, ring on arrival, allergy note"></textarea>
+            </label>
             <button class="pay-button" type="submit">
               <span>Place order</span>
               <strong id="pay-total">GBP 1.00</strong>
@@ -154,6 +184,7 @@
             <span>Sent to the kitchen</span>
             <strong id="confirmation-number"></strong>
             <p id="confirmation-copy"></p>
+            <ol class="tracking-steps" id="tracking-steps"></ol>
           </div>
         </aside>
       </div>

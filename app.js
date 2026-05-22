@@ -49,8 +49,19 @@ function subtotal() {
   }, 0);
 }
 
+function postcodeArea(value) {
+  return String(value || "").toUpperCase().replace(/\s+/g, "");
+}
+
+function deliveryZone() {
+  const postcode = postcodeArea($("#checkout-form").elements.postcode.value);
+  if (!takeaway || !postcode) return null;
+  return takeaway.zones.find((zone) => zone.active && zone.postcodes.split(",").some((area) => postcode.startsWith(postcodeArea(area))));
+}
+
 function deliveryFee() {
-  return subtotal() && state.fulfilment === "Delivery" ? 2.5 : 0;
+  const zone = deliveryZone();
+  return subtotal() && state.fulfilment === "Delivery" ? (zone ? zone.fee : 0) : 0;
 }
 
 function orderingFee() {
@@ -64,6 +75,10 @@ function discountFor(amount) {
 
 function total() {
   return subtotal() + deliveryFee() + orderingFee() - discountFor(subtotal());
+}
+
+function bestOffer() {
+  return takeaway && takeaway.promotions.find((promotion) => promotion.active);
 }
 
 function showToast(message) {
@@ -213,18 +228,80 @@ function renderCart() {
   });
   $(".address-field").hidden = state.fulfilment !== "Delivery";
   $(".address-field input").required = state.fulfilment === "Delivery";
+  $("#delivery-fields").hidden = state.fulfilment !== "Delivery";
+  $("#delivery-fields input").required = state.fulfilment === "Delivery";
+  deliveryMessage();
 }
 
-function submitOrder(form) {
+function deliveryMessage() {
+  if (!takeaway || state.fulfilment !== "Delivery") return;
+  const postcode = $("#checkout-form").elements.postcode.value;
+  const zone = deliveryZone();
+  const note = $("#zone-note");
+  if (!postcode) {
+    note.textContent = "Enter a postcode to confirm your delivery fee and ETA.";
+    return;
+  }
+  note.textContent = zone
+    ? `${zone.name}: ${currency.format(zone.fee)} delivery, ${zone.eta}, ${currency.format(zone.minimum)} delivery minimum.`
+    : "This postcode is outside the live delivery zones. Choose collection or contact the takeaway.";
+}
+
+function orderLines() {
+  return Object.values(state.cart).map((entry) => {
+    const menuItem = byId(entry.itemId);
+    return `${entry.quantity}x ${menuItem.name}${entry.selections.length ? ` (${entry.selections.join(", ")})` : ""}`;
+  });
+}
+
+function showTracking(orderId, fulfilment, timing) {
+  $("#tracking-steps").innerHTML = ["Received", "Accepted by kitchen", fulfilment === "Delivery" ? "Out for delivery" : "Ready for collection"].map((step, index) => `<li class="${index === 0 ? "active" : ""}">${step}</li>`).join("");
+  $("#confirmation-number").textContent = orderId;
+  $("#confirmation-copy").textContent = `${fulfilment} order queued for ${timing}. Status updates will appear here when the live order API is connected.`;
+}
+
+async function submitOrder(form) {
   if (!totalQuantity()) {
     showToast("Add a dish before placing your order.");
     return;
   }
+  if (!takeaway.service.acceptingOrders) {
+    showToast("Online ordering is paused right now.");
+    return;
+  }
+  if (subtotal() < takeaway.service.minimumOrder) {
+    showToast(`The order minimum is ${currency.format(takeaway.service.minimumOrder)}.`);
+    return;
+  }
+  if (state.fulfilment === "Delivery") {
+    const zone = deliveryZone();
+    if (!zone) {
+      showToast("Enter a live delivery postcode or choose collection.");
+      return;
+    }
+    if (subtotal() < zone.minimum) {
+      showToast(`${zone.name} needs ${currency.format(zone.minimum)} before delivery.`);
+      return;
+    }
+  }
 
   const formData = new FormData(form);
   const orderNumber = `ZO-${Math.floor(1200 + Math.random() * 7800)}`;
-  $("#confirmation-number").textContent = orderNumber;
-  $("#confirmation-copy").textContent = `${formData.get("name")}, your ${state.fulfilment.toLowerCase()} order is queued. We will use ${formData.get("phone")} for updates.`;
+  const timing = formData.get("timing");
+  takeaway.orders.unshift({
+    customer: formData.get("name"),
+    fulfilment: state.fulfilment,
+    id: orderNumber,
+    items: orderLines().join(", "),
+    note: formData.get("note"),
+    payment: formData.get("payment"),
+    placed: timing === "ASAP" ? "Now" : timing,
+    postcode: formData.get("postcode"),
+    status: "New",
+    total: total()
+  });
+  takeaway = await ZeroTakeawayApi.saveTakeaway(takeaway);
+  showTracking(orderNumber, state.fulfilment, timing);
   $("#order-confirmation").hidden = false;
   state.cart = {};
   saveState();
@@ -239,6 +316,11 @@ document.querySelectorAll('input[name="fulfilment"]').forEach((input) => {
     saveState();
     renderCart();
   });
+});
+
+$("#checkout-form").elements.postcode.addEventListener("input", () => {
+  deliveryMessage();
+  renderCart();
 });
 
 $("#menu-search").addEventListener("input", (event) => {
@@ -265,14 +347,15 @@ $("#clear-cart").addEventListener("click", () => {
 $("#apply-promo").addEventListener("click", () => {
   state.promo = $("#promo-code").value.trim().toUpperCase();
   $("#promo-code").value = state.promo;
-  $("#promo-note").textContent = state.promo === "DIRECT10" ? "10% unlocks when the bag reaches GBP 18." : "That code is not active.";
+  const offer = takeaway.promotions.find((promotion) => promotion.active && promotion.code === state.promo);
+  $("#promo-note").textContent = offer ? `${offer.code}: ${offer.detail} Minimum ${currency.format(offer.minimum)}.` : "That code is not active.";
   saveState();
   renderCart();
 });
 
-$("#checkout-form").addEventListener("submit", (event) => {
+$("#checkout-form").addEventListener("submit", async (event) => {
   event.preventDefault();
-  submitOrder(event.currentTarget);
+  await submitOrder(event.currentTarget);
 });
 
 async function bootCustomerApp() {
@@ -280,6 +363,11 @@ async function bootCustomerApp() {
   menu = takeaway.menu;
   document.querySelector(".venue-chip strong").textContent = takeaway.name;
   document.querySelector(".hero-content > p").textContent = takeaway.name;
+  document.querySelector(".hero-brandline").lastChild.textContent = takeaway.service.acceptingOrders ? " Taking direct orders now" : " Online ordering paused";
+  $("#customer-service-status").textContent = takeaway.service.acceptingOrders ? `Collection ${takeaway.service.collectionMinutes} min` : "Ordering paused";
+  $("#customer-minimum").textContent = takeaway.service.minimumOrder ? currency.format(takeaway.service.minimumOrder) : "No minimum";
+  $("#customer-offer").textContent = bestOffer() ? `${bestOffer().code} over ${currency.format(bestOffer().minimum)}` : "Direct ordering";
+  $("#customer-contact").textContent = `Call ${takeaway.contact.phone}`;
   $("#promo-code").value = state.promo;
   $("#menu-search").value = state.query;
   renderCategories();

@@ -35,7 +35,9 @@ body {
 }
 
 button,
-input {
+input,
+select,
+textarea {
   font: inherit;
 }
 
@@ -328,7 +330,9 @@ h3 {
   text-transform: uppercase;
 }
 
-input {
+input,
+select,
+textarea {
   background: transparent;
   border: 0;
   color: var(--ink);
@@ -721,12 +725,46 @@ input {
 }
 
 .promo-field input,
-.checkout-form input {
+.checkout-form input,
+.checkout-form select,
+.checkout-form textarea {
   background: rgba(255, 255, 255, 0.86);
   color: var(--ink);
   min-height: 55px;
   padding: 0 15px;
   text-transform: none;
+}
+
+.checkout-form select,
+.checkout-form textarea {
+  border: 1px solid var(--line);
+  border-radius: 21px;
+  outline: 0;
+}
+
+.checkout-form textarea {
+  min-height: 82px;
+  padding: 14px 15px;
+  resize: vertical;
+}
+
+.delivery-fields {
+  display: grid;
+  gap: 8px;
+}
+
+.delivery-fields[hidden] {
+  display: none;
+}
+
+.zone-note {
+  background: rgba(53, 184, 255, 0.12);
+  border: 1px solid rgba(0, 120, 255, 0.16);
+  border-radius: 20px;
+  color: var(--zero-deep);
+  font-size: 0.92rem;
+  min-height: 48px;
+  padding: 13px;
 }
 
 .promo-field span input {
@@ -824,6 +862,38 @@ input {
 
 .order-confirmation strong {
   font-size: 1.65rem;
+}
+
+.tracking-steps {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+}
+
+.tracking-steps li {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 18px;
+  display: flex;
+  font-weight: 850;
+  gap: 9px;
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+.tracking-steps li::before {
+  background: rgba(0, 120, 255, 0.24);
+  border-radius: 50%;
+  content: "";
+  height: 12px;
+  width: 12px;
+}
+
+.tracking-steps li.active::before {
+  background: var(--zero);
+  box-shadow: 0 0 0 6px rgba(0, 120, 255, 0.13);
 }
 
 .mobile-basket {

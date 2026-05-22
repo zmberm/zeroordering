@@ -49,6 +49,11 @@ function orderQueue() {
       <header><strong>${order.id}</strong><span>${order.status}</span></header>
       <h3>${order.customer} / ${order.fulfilment}</h3>
       <p>${order.items}</p>
+      <div class="order-meta">
+        <small>${order.payment || "Pay online"}</small>
+        ${order.postcode ? `<small>${order.postcode}</small>` : ""}
+        ${order.note ? `<small>${order.note}</small>` : ""}
+      </div>
       <footer><b>${money.format(order.total)}</b><small>${order.placed}</small><button data-order="${order.id}" ${order.status === "Complete" ? "disabled" : ""}>${steps[order.status]}</button></footer>
     </article>
   `).join("");

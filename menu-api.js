@@ -1,5 +1,5 @@
 (function createZeroDataApis() {
-  const takeawayKey = "zero-takeaway-harbour-v2";
+  const takeawayKey = "zero-takeaway-harbour-v3";
   const fleetKey = "zero-master-fleet-v1";
   const apiBaseUrl = window.ZERO_TAKEAWAY_API_BASE_URL || window.ZERO_MENU_API_BASE_URL || "";
   const week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -30,8 +30,13 @@
     },
     { active: true, category: "Sides", description: "Double-cooked fries finished with smoked tomato dip.", id: "chips", name: "Sea Salt Fries", optionGroups: [], price: 3.6, time: "Crisp" },
     { active: true, category: "Sides", description: "Six lacquered wings with pickled cucumber and sesame crunch.", id: "wings", name: "Sticky Wings", optionGroups: [{ id: "wing-sauce", name: "Sauce", required: false, choices: [{ name: "Smoky BBQ", price: 0 }, { name: "Blue cheese dip", price: 0.7 }] }], price: 6.8, time: "Glazed" },
+    { active: true, category: "Pizza", description: "Stone-baked margherita with basil oil and slow tomato sauce.", id: "margherita", name: "Margherita", optionGroups: [{ id: "pizza-size", name: "Pizza size", required: true, choices: [{ name: "10 inch", price: 0 }, { name: "12 inch", price: 2.5 }, { name: "14 inch", price: 4.5 }] }, { id: "pizza-crust", name: "Crust", required: false, choices: [{ name: "Garlic crust", price: 1 }, { name: "Cheese crust", price: 1.8 }] }], price: 9.8, time: "Stone baked" },
+    { active: true, category: "Chicken", description: "Buttermilk chicken tenders with house dip and slaw.", id: "tenders", name: "Chicken Tenders", optionGroups: [{ id: "tender-count", name: "Portion", required: true, choices: [{ name: "5 pieces", price: 0 }, { name: "8 pieces", price: 3.1 }] }], price: 7.4, time: "Crunch" },
+    { active: true, category: "Deals", description: "Two burgers, loaded fries, and two drinks for a direct night in.", id: "duo-box", name: "Duo Box", optionGroups: [{ id: "duo-drink", name: "Drinks", required: true, choices: [{ name: "Cola", price: 0 }, { name: "Berry shakes", price: 4 }] }], price: 24.5, time: "Bundle" },
     { active: true, category: "Fresh", description: "Warm halloumi, grains, herbs, pomegranate, and citrus dressing.", id: "salad", name: "Herb Halloumi Bowl", optionGroups: [], price: 8.7, time: "Bright" },
-    { active: true, category: "Drinks", description: "Berry shake folded with vanilla and oat crumble.", id: "shake", name: "Berry Shake", optionGroups: [{ id: "shake-size", name: "Size", required: true, choices: [{ name: "Regular", price: 0 }, { name: "Large", price: 1.2 }] }], price: 4.5, time: "Cold" }
+    { active: true, category: "Desserts", description: "Warm cookie dough, chocolate drizzle, vanilla gelato.", id: "cookie-dough", name: "Cookie Dough Melt", optionGroups: [{ id: "dessert-top", name: "Toppings", required: false, choices: [{ name: "Strawberries", price: 1 }, { name: "Salted caramel", price: 0.8 }] }], price: 6.2, time: "Warm" },
+    { active: true, category: "Drinks", description: "Berry shake folded with vanilla and oat crumble.", id: "shake", name: "Berry Shake", optionGroups: [{ id: "shake-size", name: "Size", required: true, choices: [{ name: "Regular", price: 0 }, { name: "Large", price: 1.2 }] }], price: 4.5, time: "Cold" },
+    { active: true, category: "Drinks", description: "Still spring water chilled for delivery and collection.", id: "water", name: "Spring Water", optionGroups: [], price: 1.6, time: "Chilled" }
   ];
 
   const defaultTakeaway = {
