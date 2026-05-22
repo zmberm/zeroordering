@@ -3,124 +3,167 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Zero Ordering Dashboard</title>
+    <title>Takeaway Control Center - Zero Ordering</title>
     <link rel="stylesheet" href="./dashboard.css" />
   </head>
   <body>
     <header class="dashboard-topbar">
       <img src="../assets/zero-ordering-logo.png" alt="Zero Ordering" />
-      <nav aria-label="Takeaway dashboard">
-        <strong>Harbour Street Kitchen</strong>
-        <a href="../" target="_blank" rel="noreferrer">Customer app</a>
+      <nav aria-label="Dashboard destinations">
+        <strong id="takeaway-name">Harbour Street Kitchen</strong>
+        <a href="../" target="_blank" rel="noreferrer">Customer menu</a>
+        <a href="../master/">Master</a>
       </nav>
     </header>
 
     <main class="dashboard-shell">
-      <aside class="dashboard-nav">
+      <aside class="dashboard-nav" aria-label="Takeaway controls">
         <p>Takeaway system</p>
-        <button class="active" type="button">Menu</button>
-        <button type="button" disabled>Orders</button>
-        <button type="button" disabled>Opening times</button>
-        <button type="button" disabled>Delivery</button>
-        <button type="button" disabled>Promotions</button>
+        <button class="active" data-view="overview" type="button">Overview</button>
+        <button data-view="menu" type="button">Menu</button>
+        <button data-view="hours" type="button">Hours</button>
+        <button data-view="delivery" type="button">Delivery</button>
+        <button data-view="promotions" type="button">Promotions</button>
       </aside>
 
-      <section class="dashboard-main" aria-labelledby="dashboard-title">
+      <section class="dashboard-main">
         <header class="dashboard-heading">
           <div>
-            <p>Menu management</p>
-            <h1 id="dashboard-title">Shape the menu customers order from.</h1>
+            <p id="view-kicker">Takeaway control center</p>
+            <h1 id="view-title">Run the ordering app from one place.</h1>
           </div>
           <div class="heading-actions">
-            <button class="quiet-action" id="reset-menu" type="button">Reset demo menu</button>
-            <button class="save-action" id="save-menu" type="button">Save menu</button>
+            <button class="quiet-action" id="reset-system" type="button">Reset demo</button>
+            <button class="save-action" id="save-system" type="button">Publish changes</button>
           </div>
         </header>
 
-        <div class="metrics" id="menu-metrics" aria-label="Menu metrics"></div>
-
-        <div class="dashboard-grid">
-          <section class="menu-library" aria-labelledby="library-title">
-            <div class="panel-head">
-              <div>
-                <p>Items</p>
-                <h2 id="library-title">Takeaway menu</h2>
+        <section class="control-view active" data-panel="overview">
+          <div class="metrics" id="overview-metrics" aria-label="Takeaway metrics"></div>
+          <div class="operations-grid">
+            <section class="panel order-panel">
+              <div class="panel-head">
+                <div><p>Live orders</p><h2>Kitchen flow</h2></div>
+                <button id="add-demo-order" type="button">Demo order</button>
               </div>
-              <button id="new-item" type="button">New item</button>
-            </div>
-            <label class="dashboard-search">
-              <span>Search menu</span>
-              <input id="dashboard-search" type="search" placeholder="Burger, sides, drinks" />
-            </label>
-            <div class="menu-table" id="dashboard-items"></div>
-          </section>
-
-          <section class="editor-panel" aria-labelledby="editor-title">
-            <div class="panel-head">
-              <div>
-                <p>Item studio</p>
-                <h2 id="editor-title">Edit dish</h2>
+              <div class="order-queue" id="order-queue"></div>
+            </section>
+            <section class="panel app-panel">
+              <div class="panel-head">
+                <div><p>Customer app</p><h2>Storefront health</h2></div>
               </div>
-              <button class="quiet-action" id="duplicate-item" type="button">Duplicate</button>
-            </div>
+              <div class="service-card" id="service-card"></div>
+              <div class="setup-grid" id="setup-grid"></div>
+            </section>
+          </div>
+        </section>
 
-            <form id="menu-editor">
-              <div class="editor-grid">
-                <label>
-                  Item name
-                  <input required name="name" type="text" />
-                </label>
-                <label>
-                  Category
-                  <input required name="category" type="text" />
-                </label>
-                <label>
-                  Price
-                  <span class="price-input">
-                    <b>GBP</b>
-                    <input required min="0" name="price" step="0.05" type="number" />
-                  </span>
-                </label>
-                <label>
-                  Menu badge
-                  <input required maxlength="18" name="time" type="text" />
-                </label>
+        <section class="control-view" data-panel="menu">
+          <div class="dashboard-grid">
+            <section class="panel menu-library" aria-labelledby="library-title">
+              <div class="panel-head">
+                <div><p>Menu items</p><h2 id="library-title">Customer catalogue</h2></div>
+                <button id="new-item" type="button">New item</button>
               </div>
-              <label>
-                Description
-                <textarea required name="description" rows="5"></textarea>
+              <label class="dashboard-search">
+                <span>Search menu</span>
+                <input id="dashboard-search" type="search" placeholder="Burger, sides, drinks" />
               </label>
-              <label class="live-switch">
-                <input name="active" type="checkbox" />
-                <span>Show this item to customers</span>
-              </label>
-              <div class="editor-actions">
-                <button class="danger-action" id="delete-item" type="button">Delete item</button>
-                <button class="save-action" type="submit">Apply item changes</button>
+              <div class="menu-table" id="dashboard-items"></div>
+            </section>
+
+            <section class="panel editor-panel" aria-labelledby="editor-title">
+              <div class="panel-head">
+                <div><p>Item studio</p><h2 id="editor-title">Dish and options</h2></div>
+                <button class="quiet-action" id="duplicate-item" type="button">Duplicate</button>
               </div>
-            </form>
+              <form id="menu-editor">
+                <div class="editor-grid">
+                  <label>Item name<input required name="name" type="text" /></label>
+                  <label>Category<input required name="category" type="text" /></label>
+                  <label>Price<span class="price-input"><b>GBP</b><input required min="0" name="price" step="0.05" type="number" /></span></label>
+                  <label>Menu badge<input required maxlength="18" name="time" type="text" /></label>
+                </div>
+                <label>Description<textarea required name="description" rows="4"></textarea></label>
+                <label class="live-switch"><input name="active" type="checkbox" /><span>Show this item on the customer menu</span></label>
+                <section class="modifier-section" aria-labelledby="modifier-title">
+                  <div class="panel-head compact">
+                    <div><p>Pickable options</p><h3 id="modifier-title">Modifier groups</h3></div>
+                    <button class="quiet-action" id="add-option-group" type="button">Add group</button>
+                  </div>
+                  <div class="modifier-groups" id="modifier-groups"></div>
+                </section>
+                <div class="editor-actions">
+                  <button class="danger-action" id="delete-item" type="button">Delete item</button>
+                  <button class="save-action" type="submit">Apply item changes</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
+
+        <section class="control-view" data-panel="hours">
+          <div class="operations-grid">
+            <section class="panel">
+              <div class="panel-head">
+                <div><p>Opening hours</p><h2>Weekly schedule</h2></div>
+              </div>
+              <div class="hours-grid" id="hours-grid"></div>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <div><p>Closures</p><h2>Holidays and exceptions</h2></div>
+                <button id="add-holiday" type="button">Add day</button>
+              </div>
+              <div class="holiday-list" id="holiday-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="control-view" data-panel="delivery">
+          <div class="operations-grid delivery-layout">
+            <section class="panel">
+              <div class="panel-head">
+                <div><p>Service controls</p><h2>Collection and delivery</h2></div>
+              </div>
+              <form class="service-form" id="service-form">
+                <label class="live-switch"><input name="acceptingOrders" type="checkbox" /><span>Accept online orders now</span></label>
+                <div class="editor-grid">
+                  <label>Minimum order<span class="price-input"><b>GBP</b><input name="minimumOrder" min="0" step="0.50" type="number" /></span></label>
+                  <label>Collection time<input name="collectionMinutes" min="5" step="5" type="number" /></label>
+                  <label>Delivery time<input name="deliveryMinutes" min="5" step="5" type="number" /></label>
+                  <label>Support phone<input name="phone" type="tel" /></label>
+                </div>
+              </form>
+            </section>
+            <section class="panel">
+              <div class="panel-head">
+                <div><p>Delivery zones</p><h2>Fees, areas, ETAs</h2></div>
+                <button id="add-zone" type="button">Add zone</button>
+              </div>
+              <div class="zone-editor" id="zone-editor"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="control-view" data-panel="promotions">
+          <section class="panel">
+            <div class="panel-head">
+              <div><p>Promotions</p><h2>Discount codes and offers</h2></div>
+              <button id="add-promotion" type="button">New promotion</button>
+            </div>
+            <div class="promotion-grid" id="promotion-grid"></div>
           </section>
-        </div>
+        </section>
       </section>
     </main>
 
     <template id="dashboard-item-template">
       <article class="dashboard-item">
-        <button class="item-select" type="button">
-          <span>
-            <small></small>
-            <strong></strong>
-            <em></em>
-          </span>
-          <b></b>
-        </button>
-        <label>
-          <input class="item-live" type="checkbox" />
-          <span>Live</span>
-        </label>
+        <button class="item-select" type="button"><span><small></small><strong></strong><em></em></span><b></b></button>
+        <label><input class="item-live" type="checkbox" /><span>Live</span></label>
       </article>
     </template>
-
     <div class="dashboard-toast" id="dashboard-toast" role="status" aria-live="polite"></div>
     <script src="../menu-api.js"></script>
     <script src="./dashboard.js"></script>

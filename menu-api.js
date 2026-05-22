@@ -1,91 +1,179 @@
-(function createZeroMenuApi() {
-  const menuKey = "zero-menu-catalog-v1";
-  const apiBaseUrl = window.ZERO_MENU_API_BASE_URL || "";
+(function createZeroDataApis() {
+  const takeawayKey = "zero-takeaway-harbour-v2";
+  const fleetKey = "zero-master-fleet-v1";
+  const apiBaseUrl = window.ZERO_TAKEAWAY_API_BASE_URL || window.ZERO_MENU_API_BASE_URL || "";
+  const week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
   const defaultMenu = [
-    { id: "burger", name: "Dock Burger", category: "Burgers", price: 10.9, time: "Signature", description: "Charred beef, pepper relish, crisp lettuce, and glossy house sauce.", active: true },
-    { id: "wrap", name: "Fire Wrap", category: "Wraps", price: 9.4, time: "Hot", description: "Grilled chicken, lemon slaw, chilli yogurt, and soft flatbread.", active: true },
-    { id: "chips", name: "Sea Salt Fries", category: "Sides", price: 3.6, time: "Crisp", description: "Double-cooked fries finished with smoked tomato dip.", active: true },
-    { id: "wings", name: "Sticky Wings", category: "Sides", price: 6.8, time: "Glazed", description: "Six lacquered wings with pickled cucumber and sesame crunch.", active: true },
-    { id: "salad", name: "Herb Halloumi Bowl", category: "Fresh", price: 8.7, time: "Bright", description: "Warm halloumi, grains, herbs, pomegranate, and citrus dressing.", active: true },
-    { id: "shake", name: "Berry Shake", category: "Drinks", price: 4.5, time: "Cold", description: "Berry shake folded with vanilla and oat crumble.", active: true }
+    {
+      active: true,
+      category: "Burgers",
+      description: "Charred beef, pepper relish, crisp lettuce, and glossy house sauce.",
+      id: "burger",
+      name: "Dock Burger",
+      optionGroups: [
+        { id: "burger-cook", name: "Make it yours", required: true, choices: [{ name: "Burger only", price: 0 }, { name: "Meal with fries", price: 3.2 }] },
+        { id: "burger-extras", name: "Extras", required: false, choices: [{ name: "Cheese", price: 0.8 }, { name: "Smoked bacon", price: 1.4 }] }
+      ],
+      price: 10.9,
+      time: "Signature"
+    },
+    {
+      active: true,
+      category: "Wraps",
+      description: "Grilled chicken, lemon slaw, chilli yogurt, and soft flatbread.",
+      id: "wrap",
+      name: "Fire Wrap",
+      optionGroups: [{ id: "wrap-heat", name: "Heat", required: true, choices: [{ name: "Mild", price: 0 }, { name: "Hot", price: 0 }, { name: "Extra hot", price: 0 }] }],
+      price: 9.4,
+      time: "Hot"
+    },
+    { active: true, category: "Sides", description: "Double-cooked fries finished with smoked tomato dip.", id: "chips", name: "Sea Salt Fries", optionGroups: [], price: 3.6, time: "Crisp" },
+    { active: true, category: "Sides", description: "Six lacquered wings with pickled cucumber and sesame crunch.", id: "wings", name: "Sticky Wings", optionGroups: [{ id: "wing-sauce", name: "Sauce", required: false, choices: [{ name: "Smoky BBQ", price: 0 }, { name: "Blue cheese dip", price: 0.7 }] }], price: 6.8, time: "Glazed" },
+    { active: true, category: "Fresh", description: "Warm halloumi, grains, herbs, pomegranate, and citrus dressing.", id: "salad", name: "Herb Halloumi Bowl", optionGroups: [], price: 8.7, time: "Bright" },
+    { active: true, category: "Drinks", description: "Berry shake folded with vanilla and oat crumble.", id: "shake", name: "Berry Shake", optionGroups: [{ id: "shake-size", name: "Size", required: true, choices: [{ name: "Regular", price: 0 }, { name: "Large", price: 1.2 }] }], price: 4.5, time: "Cold" }
+  ];
+
+  const defaultTakeaway = {
+    contact: { email: "orders@harbourstreetkitchen.co.uk", phone: "07123 555 441" },
+    holidays: [
+      { date: "2026-12-25", note: "Christmas Day", closed: true },
+      { date: "2026-12-26", note: "Reduced kitchen team", closed: false }
+    ],
+    hours: week.map((day, index) => ({ day, closed: index === 0, open: index === 0 ? "" : "12:00", close: index > 3 ? "23:00" : "22:30" })),
+    id: "harbour-street-kitchen",
+    menu: defaultMenu,
+    name: "Harbour Street Kitchen",
+    orderLink: "/",
+    orders: [
+      { id: "ZO-2418", customer: "Maya", fulfilment: "Delivery", status: "Preparing", placed: "18:14", total: 24.8, items: "Dock Burger meal, Fire Wrap" },
+      { id: "ZO-2417", customer: "Owen", fulfilment: "Collection", status: "New", placed: "18:07", total: 16.3, items: "Sticky Wings, Sea Salt Fries, Berry Shake" },
+      { id: "ZO-2413", customer: "Leah", fulfilment: "Delivery", status: "Ready", placed: "17:46", total: 32.1, items: "2 Dock Burgers, fries" }
+    ],
+    promotions: [
+      { active: true, code: "DIRECT10", id: "direct10", kind: "Percent off", minimum: 18, value: 10, detail: "Reward first direct orders." },
+      { active: true, code: "FREEFRIES", id: "freefries", kind: "Offer", minimum: 24, value: 0, detail: "Free fries with burger orders." }
+    ],
+    service: { acceptingOrders: true, collectionMinutes: 20, deliveryMinutes: 35, minimumOrder: 0 },
+    zones: [
+      { active: true, fee: 2.5, eta: "25-35 min", id: "town", minimum: 12, name: "Town centre", postcodes: "HD1, HD2" },
+      { active: true, fee: 3.5, eta: "35-45 min", id: "riverside", minimum: 18, name: "Riverside", postcodes: "HD3" },
+      { active: false, fee: 4.5, eta: "45-55 min", id: "outskirts", minimum: 24, name: "Outskirts", postcodes: "HD4" }
+    ]
+  };
+
+  const defaultFleet = [
+    { active: true, id: "harbour-street-kitchen", name: "Harbour Street Kitchen", postcode: "HD1", orders: 184, revenue: 4286, conversion: 18.4, commissionSaved: 986 },
+    { active: true, id: "north-lane-pizza", name: "North Lane Pizza", postcode: "LS1", orders: 312, revenue: 7094, conversion: 22.1, commissionSaved: 1632 },
+    { active: false, id: "moonlight-desserts", name: "Moonlight Desserts", postcode: "M14", orders: 97, revenue: 1898, conversion: 12.6, commissionSaved: 438 }
   ];
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
   }
 
-  function itemId(name) {
-    const slug = String(name || "menu-item")
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "");
-    return `${slug || "menu-item"}-${Math.floor(1000 + Math.random() * 9000)}`;
+  function createId(name) {
+    const slug = String(name || "item").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    return `${slug || "item"}-${Math.floor(1000 + Math.random() * 9000)}`;
+  }
+
+  function cleanChoice(choice) {
+    return { name: String(choice.name || "Choice").trim(), price: Math.max(0, Number(choice.price) || 0) };
+  }
+
+  function cleanGroup(group) {
+    return {
+      choices: Array.isArray(group.choices) && group.choices.length ? group.choices.map(cleanChoice) : [{ name: "Choice", price: 0 }],
+      id: String(group.id || createId(group.name || "option-group")),
+      name: String(group.name || "Options").trim(),
+      required: Boolean(group.required)
+    };
   }
 
   function cleanItem(item) {
     return {
-      id: String(item.id || itemId(item.name)),
-      name: String(item.name || "New item").trim(),
+      active: item.active !== false,
       category: String(item.category || "Menu").trim(),
-      price: Math.max(0, Number(item.price) || 0),
-      time: String(item.time || "Direct").trim(),
       description: String(item.description || "").trim(),
-      active: item.active !== false
+      id: String(item.id || createId(item.name || "menu-item")),
+      name: String(item.name || "New item").trim(),
+      optionGroups: Array.isArray(item.optionGroups) ? item.optionGroups.map(cleanGroup) : [],
+      price: Math.max(0, Number(item.price) || 0),
+      time: String(item.time || "Direct").trim()
     };
   }
 
-  function localMenu() {
-    const saved = JSON.parse(localStorage.getItem(menuKey) || "null");
-    return Array.isArray(saved) && saved.length ? saved.map(cleanItem) : clone(defaultMenu);
+  function cleanTakeaway(profile) {
+    const source = { ...clone(defaultTakeaway), ...profile };
+    return {
+      ...source,
+      contact: { ...defaultTakeaway.contact, ...(source.contact || {}) },
+      holidays: Array.isArray(source.holidays) ? source.holidays : [],
+      hours: week.map((day) => {
+        const saved = (source.hours || []).find((entry) => entry.day === day);
+        return { close: "22:30", closed: false, open: "12:00", ...saved, day };
+      }),
+      menu: (source.menu || defaultMenu).map(cleanItem),
+      orders: Array.isArray(source.orders) ? source.orders : clone(defaultTakeaway.orders),
+      promotions: Array.isArray(source.promotions) ? source.promotions : clone(defaultTakeaway.promotions),
+      service: { ...defaultTakeaway.service, ...(source.service || {}) },
+      zones: Array.isArray(source.zones) ? source.zones : clone(defaultTakeaway.zones)
+    };
+  }
+
+  function localTakeaway() {
+    return cleanTakeaway(JSON.parse(localStorage.getItem(takeawayKey) || "null") || clone(defaultTakeaway));
   }
 
   async function request(path, options) {
-    const response = await fetch(`${apiBaseUrl}${path}`, {
-      headers: { "Content-Type": "application/json" },
-      ...options
-    });
-
-    if (!response.ok) {
-      throw new Error(`Menu API failed with ${response.status}.`);
-    }
-
+    const response = await fetch(`${apiBaseUrl}${path}`, { headers: { "Content-Type": "application/json" }, ...options });
+    if (!response.ok) throw new Error(`Zero API failed with ${response.status}.`);
     return response.json();
   }
 
-  async function listMenu() {
-    if (apiBaseUrl) {
-      const data = await request("/menu");
-      return (data.items || data).map(cleanItem);
-    }
-
-    return localMenu();
+  async function getTakeaway() {
+    if (apiBaseUrl) return cleanTakeaway(await request("/takeaways/harbour-street-kitchen"));
+    return localTakeaway();
   }
 
-  async function saveMenu(items) {
-    const nextMenu = items.map(cleanItem);
-
-    if (apiBaseUrl) {
-      const data = await request("/menu", {
-        body: JSON.stringify({ items: nextMenu }),
-        method: "PUT"
-      });
-      return (data.items || data).map(cleanItem);
-    }
-
-    localStorage.setItem(menuKey, JSON.stringify(nextMenu));
-    return nextMenu;
+  async function saveTakeaway(profile) {
+    const next = cleanTakeaway(profile);
+    if (apiBaseUrl) return cleanTakeaway(await request(`/takeaways/${next.id}`, { body: JSON.stringify(next), method: "PUT" }));
+    localStorage.setItem(takeawayKey, JSON.stringify(next));
+    return next;
   }
 
-  async function resetMenu() {
-    return saveMenu(clone(defaultMenu));
+  async function resetTakeaway() {
+    return saveTakeaway(clone(defaultTakeaway));
   }
 
+  function localFleet() {
+    const saved = JSON.parse(localStorage.getItem(fleetKey) || "null");
+    return Array.isArray(saved) && saved.length ? saved : clone(defaultFleet);
+  }
+
+  async function listFleet() {
+    if (apiBaseUrl) return request("/master/takeaways");
+    return localFleet();
+  }
+
+  async function saveFleet(items) {
+    if (apiBaseUrl) return request("/master/takeaways", { body: JSON.stringify({ items }), method: "PUT" });
+    localStorage.setItem(fleetKey, JSON.stringify(items));
+    return items;
+  }
+
+  window.ZeroTakeawayApi = { createId, defaults: clone(defaultTakeaway), getTakeaway, resetTakeaway, saveTakeaway };
   window.ZeroMenuApi = {
-    createId: itemId,
+    createId,
     defaults: clone(defaultMenu),
-    listMenu,
-    resetMenu,
-    saveMenu
+    async listMenu() { return (await getTakeaway()).menu; },
+    async resetMenu() { return (await resetTakeaway()).menu; },
+    async saveMenu(items) {
+      const takeaway = await getTakeaway();
+      takeaway.menu = items;
+      return (await saveTakeaway(takeaway)).menu;
+    }
   };
+  window.ZeroFleetApi = { createId, defaults: clone(defaultFleet), listFleet, saveFleet };
 })();

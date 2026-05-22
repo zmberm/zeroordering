@@ -208,7 +208,7 @@ p {
 .metrics {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   margin-bottom: 18px;
 }
 
@@ -231,6 +231,151 @@ p {
   grid-template-columns: minmax(410px, 0.95fr) minmax(440px, 1.05fr);
 }
 
+.control-view {
+  display: none;
+}
+
+.control-view.active {
+  display: block;
+}
+
+.panel {
+  backdrop-filter: blur(20px);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 36px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+  padding: clamp(18px, 2vw, 28px);
+}
+
+.operations-grid {
+  align-items: start;
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1.15fr) minmax(380px, 0.85fr);
+}
+
+.panel h3 {
+  margin: 0;
+}
+
+.order-queue,
+.setup-grid,
+.modifier-groups,
+.zone-editor,
+.promotion-grid,
+.holiday-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.queue-card,
+.service-card,
+.setup-grid article,
+.modifier-card,
+.hour-row,
+.holiday-row,
+.zone-card,
+.promo-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+}
+
+.queue-card {
+  display: grid;
+  gap: 8px;
+  padding: 18px;
+}
+
+.queue-card header,
+.queue-card footer,
+.service-card,
+.zone-card header,
+.promo-card header,
+.modifier-card header,
+.modifier-card footer {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.queue-card header span {
+  background: rgba(55, 188, 255, 0.16);
+  border-radius: 999px;
+  color: var(--zero-deep);
+  font-size: 0.76rem;
+  font-weight: 950;
+  padding: 9px 11px;
+  text-transform: uppercase;
+}
+
+.queue-card footer {
+  flex-wrap: wrap;
+}
+
+.queue-card footer small {
+  color: var(--muted);
+}
+
+.queue-card button,
+.modifier-card button {
+  background: var(--ink);
+  border: 0;
+  border-radius: 18px;
+  color: white;
+  font-weight: 900;
+  min-height: 44px;
+  padding: 0 14px;
+}
+
+.service-card {
+  align-items: start;
+  background: linear-gradient(135deg, rgba(55, 188, 255, 0.2), rgba(174, 233, 107, 0.18));
+  display: grid;
+  justify-items: start;
+  padding: 22px;
+}
+
+.service-card strong {
+  font-size: clamp(1.25rem, 2vw, 2rem);
+}
+
+.service-card a {
+  background: var(--ink);
+  border-radius: 20px;
+  color: white;
+  font-weight: 950;
+  min-height: 52px;
+  padding: 16px;
+  text-decoration: none;
+}
+
+.setup-grid {
+  grid-template-columns: 1fr 1fr;
+}
+
+.setup-grid article {
+  display: grid;
+  gap: 7px;
+  min-height: 105px;
+  padding: 18px;
+}
+
+.setup-grid span {
+  color: var(--zero-deep);
+  font-size: 0.74rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.setup-grid strong {
+  font-size: 1.2rem;
+}
+
 .menu-library,
 .editor-panel {
   border-radius: 36px;
@@ -240,6 +385,14 @@ p {
 
 .panel-head h2 {
   font-size: clamp(1.45rem, 2.2vw, 2.4rem);
+}
+
+.panel-head h3 {
+  font-size: clamp(1.15rem, 1.65vw, 1.65rem);
+}
+
+.panel-head.compact {
+  margin-bottom: 12px;
 }
 
 .dashboard-search {
@@ -400,6 +553,144 @@ input[type="checkbox"] {
   text-transform: none;
 }
 
+.modifier-section {
+  background: rgba(230, 240, 255, 0.62);
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  padding: 16px;
+}
+
+.modifier-card {
+  display: grid;
+  gap: 11px;
+  padding: 14px;
+}
+
+.modifier-card header input {
+  flex: 1;
+  font-weight: 950;
+  min-height: 54px;
+}
+
+.modifier-card header label,
+.zone-card header label,
+.promo-card header label {
+  align-items: center;
+  background: rgba(174, 233, 107, 0.22);
+  border-radius: 18px;
+  display: flex;
+  font-weight: 900;
+  gap: 7px;
+  min-height: 50px;
+  padding: 0 12px;
+}
+
+.choice-list {
+  display: grid;
+  gap: 8px;
+}
+
+.choice-row {
+  align-items: center;
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 0.52fr) auto;
+}
+
+.choice-row > input,
+.zone-card header > input,
+.promo-card header > input {
+  min-height: 58px;
+}
+
+.choice-row > button,
+.modifier-card footer button:last-child {
+  background: rgba(215, 63, 92, 0.12);
+  color: var(--danger);
+}
+
+.empty-note {
+  border: 1px dashed rgba(0, 120, 255, 0.28);
+  border-radius: 24px;
+  padding: 18px;
+}
+
+.hours-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.hour-row {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr auto minmax(120px, 0.7fr) minmax(120px, 0.7fr);
+  min-height: 78px;
+  padding: 10px 14px;
+}
+
+.hour-row label,
+.holiday-row label {
+  align-items: center;
+  display: flex;
+  font-weight: 900;
+  gap: 7px;
+}
+
+.hour-row input,
+.holiday-row input,
+.service-form > .editor-grid input,
+.zone-card input,
+.promo-card input {
+  min-height: 58px;
+}
+
+.holiday-row {
+  align-items: center;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(150px, 0.7fr) minmax(0, 1fr) auto auto;
+  padding: 12px;
+}
+
+.delivery-layout {
+  grid-template-columns: minmax(380px, 0.75fr) minmax(0, 1.25fr);
+}
+
+.service-form {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.zone-card,
+.promo-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.zone-card header > input,
+.promo-card header > input {
+  font-size: 1.15rem;
+  font-weight: 950;
+}
+
+.zone-card label,
+.promo-card label {
+  color: var(--muted);
+  display: grid;
+  font-size: 0.78rem;
+  font-weight: 950;
+  gap: 7px;
+  text-transform: uppercase;
+}
+
+.promotion-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(410px, 100%), 1fr));
+}
+
 .price-input {
   align-items: center;
   background: rgba(255, 255, 255, 0.92);
@@ -463,7 +754,9 @@ input[type="checkbox"] {
 
 @media (max-width: 1100px) {
   .dashboard-shell,
-  .dashboard-grid {
+  .dashboard-grid,
+  .operations-grid,
+  .delivery-layout {
     grid-template-columns: 1fr;
   }
 
@@ -488,6 +781,10 @@ input[type="checkbox"] {
     display: none;
   }
 
+  .dashboard-topbar nav a:last-child {
+    display: none;
+  }
+
   .dashboard-heading,
   .panel-head,
   .editor-actions {
@@ -497,7 +794,11 @@ input[type="checkbox"] {
 
   .heading-actions,
   .metrics,
-  .editor-grid {
+  .editor-grid,
+  .setup-grid,
+  .choice-row,
+  .hour-row,
+  .holiday-row {
     grid-template-columns: 1fr;
   }
 

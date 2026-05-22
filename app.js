@@ -1,6 +1,8 @@
 const storageKey = "zero-customer-order";
 
 let menu = [];
+let takeaway = null;
+let pendingOptionItem = null;
 
 const currency = new Intl.NumberFormat("en-GB", {
   currency: "GBP",
@@ -9,13 +11,17 @@ const currency = new Intl.NumberFormat("en-GB", {
 
 function readState() {
   const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
-  return saved || {
+  const next = saved || {
     cart: {},
     category: "All",
     query: "",
     fulfilment: "Collection",
     promo: ""
   };
+  next.cart = Object.fromEntries(Object.entries(next.cart || {}).map(([key, value]) => {
+    return [key, typeof value === "number" ? { itemId: key, quantity: value, selections: [], unitPrice: null } : value];
+  }));
+  return next;
 }
 
 const state = readState();
@@ -32,13 +38,14 @@ function byId(id) {
 }
 
 function totalQuantity() {
-  return Object.values(state.cart).reduce((sum, quantity) => sum + quantity, 0);
+  return Object.values(state.cart).reduce((sum, entry) => sum + entry.quantity, 0);
 }
 
 function subtotal() {
-  return Object.entries(state.cart).reduce((sum, [id, quantity]) => {
-    const item = byId(id);
-    return item ? sum + item.price * quantity : sum;
+  return Object.values(state.cart).reduce((sum, entry) => {
+    const item = byId(entry.itemId);
+    const price = entry.unitPrice === null || entry.unitPrice === undefined ? item && item.price : entry.unitPrice;
+    return item && price !== undefined ? sum + price * entry.quantity : sum;
   }, 0);
 }
 
@@ -51,7 +58,8 @@ function orderingFee() {
 }
 
 function discountFor(amount) {
-  return state.promo === "DIRECT10" && amount >= 18 ? amount * 0.1 : 0;
+  const offer = takeaway && takeaway.promotions.find((promotion) => promotion.active && promotion.code === state.promo);
+  return offer && offer.kind.toLowerCase().includes("percent") && amount >= offer.minimum ? amount * offer.value / 100 : 0;
 }
 
 function total() {
@@ -114,39 +122,59 @@ function renderMenu() {
   }
 }
 
+function defaultCustomization(item) {
+  const selections = item.optionGroups.filter((group) => group.required).map((group) => group.choices[0]);
+  return { selections: selections.map((choice) => choice.name), extra: selections.reduce((sum, choice) => sum + choice.price, 0) };
+}
+
+function addCustomizedItem(id, customization) {
+  const menuItem = byId(id);
+  if (!menuItem || !menuItem.active) return;
+  const selected = customization || { extra: 0, selections: [] };
+  const key = `${id}::${selected.selections.join("|") || "plain"}`;
+  const current = state.cart[key];
+  state.cart[key] = current || { itemId: id, quantity: 0, selections: selected.selections, unitPrice: menuItem.price + selected.extra };
+  state.cart[key].quantity += 1;
+  saveState();
+  renderCart();
+  showToast(`${menuItem.name} added.`);
+}
+
 function addToCart(id) {
-  if (!byId(id) || !byId(id).active) return;
-  state.cart[id] = (state.cart[id] || 0) + 1;
-  saveState();
-  renderCart();
-  showToast(`${byId(id).name} added.`);
+  const menuItem = byId(id);
+  if (!menuItem || !menuItem.active) return;
+  if (menuItem.optionGroups.length) {
+    openOptions(menuItem);
+    return;
+  }
+  addCustomizedItem(id, { extra: 0, selections: [] });
 }
 
-function updateQuantity(id, change) {
-  state.cart[id] = (state.cart[id] || 0) + change;
-  if (state.cart[id] <= 0) delete state.cart[id];
+function updateQuantity(key, change) {
+  state.cart[key].quantity += change;
+  if (state.cart[key].quantity <= 0) delete state.cart[key];
   saveState();
   renderCart();
 }
 
-function cartLine(id, quantity) {
-  const item = byId(id);
+function cartLine(key, entry) {
+  const item = byId(entry.itemId);
   const line = document.createElement("div");
   line.className = "cart-line";
   line.innerHTML = `
     <span>
       <strong>${item.name}</strong>
-      <small>${currency.format(item.price)} each</small>
+      <small>${entry.selections.length ? `${entry.selections.join(", ")} / ` : ""}${currency.format(entry.unitPrice || item.price)} each</small>
     </span>
-    <b>${currency.format(item.price * quantity)}</b>
+    <b>${currency.format((entry.unitPrice || item.price) * entry.quantity)}</b>
     <div class="quantity-buttons" aria-label="${item.name} quantity">
       <button type="button" data-change="-1" aria-label="Remove one ${item.name}">-</button>
-      <span>${quantity}</span>
+      <span>${entry.quantity}</span>
       <button type="button" data-change="1" aria-label="Add one ${item.name}">+</button>
     </div>
   `;
   line.querySelectorAll("button").forEach((button) => {
-    button.addEventListener("click", () => updateQuantity(id, Number(button.dataset.change)));
+    button.addEventListener("click", () => updateQuantity(key, Number(button.dataset.change)));
   });
   return line;
 }
@@ -154,11 +182,11 @@ function cartLine(id, quantity) {
 function renderCart() {
   const lines = $("#cart-lines");
   lines.innerHTML = "";
-  Object.entries(state.cart).forEach(([id, quantity]) => {
-    if (byId(id)) {
-      lines.append(cartLine(id, quantity));
+  Object.entries(state.cart).forEach(([key, entry]) => {
+    if (byId(entry.itemId)) {
+      lines.append(cartLine(key, entry));
     } else {
-      delete state.cart[id];
+      delete state.cart[key];
     }
   });
 
@@ -223,7 +251,9 @@ $("#browse-menu").addEventListener("click", () => $("#menu").scrollIntoView({ bl
 $("#basket-jump").addEventListener("click", () => $("#basket").scrollIntoView({ block: "start" }));
 $("#mobile-basket-button").addEventListener("click", () => $("#basket").scrollIntoView({ block: "start" }));
 $("#quick-add").addEventListener("click", () => {
-  ["burger", "chips", "shake"].filter(byId).forEach(addToCart);
+  ["burger", "chips", "shake"].map(byId).filter(Boolean).forEach((menuItem) => {
+    addCustomizedItem(menuItem.id, defaultCustomization(menuItem));
+  });
 });
 
 $("#clear-cart").addEventListener("click", () => {
@@ -246,12 +276,46 @@ $("#checkout-form").addEventListener("submit", (event) => {
 });
 
 async function bootCustomerApp() {
-  menu = await ZeroMenuApi.listMenu();
+  takeaway = await ZeroTakeawayApi.getTakeaway();
+  menu = takeaway.menu;
+  document.querySelector(".venue-chip strong").textContent = takeaway.name;
+  document.querySelector(".hero-content > p").textContent = takeaway.name;
   $("#promo-code").value = state.promo;
   $("#menu-search").value = state.query;
   renderCategories();
   renderMenu();
   renderCart();
 }
+
+function optionPrice() {
+  const checked = document.querySelectorAll("#customer-option-groups input:checked");
+  const extras = [...checked].reduce((sum, input) => sum + Number(input.dataset.price), 0);
+  $("#option-total").textContent = currency.format(pendingOptionItem.price + extras);
+}
+
+function openOptions(menuItem) {
+  pendingOptionItem = menuItem;
+  $("#option-title").textContent = menuItem.name;
+  $("#customer-option-groups").innerHTML = menuItem.optionGroups.map((group) => `
+    <fieldset class="option-group">
+      <legend>${group.name}${group.required ? " / choose one" : ""}</legend>
+      ${group.choices.map((choice, index) => `<label class="option-choice"><span><input name="${group.id}" type="${group.required ? "radio" : "checkbox"}" data-label="${choice.name}" data-price="${choice.price}" ${group.required && index === 0 ? "checked" : ""} />${choice.name}</span><strong>${choice.price ? `+${currency.format(choice.price)}` : "Included"}</strong></label>`).join("")}
+    </fieldset>
+  `).join("");
+  $("#customer-option-groups").querySelectorAll("input").forEach((input) => input.addEventListener("change", optionPrice));
+  $("#option-modal").hidden = false;
+  optionPrice();
+}
+
+$("#close-options").addEventListener("click", () => $("#option-modal").hidden = true);
+$("#option-form").addEventListener("submit", (event) => {
+  event.preventDefault();
+  const checked = [...document.querySelectorAll("#customer-option-groups input:checked")];
+  addCustomizedItem(pendingOptionItem.id, {
+    extra: checked.reduce((sum, input) => sum + Number(input.dataset.price), 0),
+    selections: checked.map((input) => input.dataset.label)
+  });
+  $("#option-modal").hidden = true;
+});
 
 bootCustomerApp();

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zero Ordering Master</title>
+    <link rel="stylesheet" href="./master.css" />
+  </head>
+  <body>
+    <header class="master-topbar">
+      <img src="../assets/zero-ordering-logo.png" alt="Zero Ordering" />
+      <nav><a href="../dashboard/">Takeaway dashboard</a><strong>Master operations</strong></nav>
+    </header>
+    <main class="master-shell">
+      <section class="master-hero">
+        <div>
+          <p>Zero Ordering network</p>
+          <h1>Run every takeaway from one command view.</h1>
+        </div>
+        <form id="new-takeaway">
+          <label>Takeaway name<input required name="name" placeholder="Add takeaway" /></label>
+          <label>Postcode<input required name="postcode" placeholder="HD1" /></label>
+          <button type="submit">Add takeaway</button>
+        </form>
+      </section>
+      <section class="fleet-metrics" id="fleet-metrics" aria-label="Fleet metrics"></section>
+      <div class="master-grid">
+        <section class="master-panel">
+          <header><div><p>Portfolio</p><h2>Takeaways</h2></div><input id="fleet-search" type="search" placeholder="Search stores" /></header>
+          <div class="fleet-table" id="fleet-table"></div>
+        </section>
+        <aside class="master-panel weekly-panel">
+          <header><div><p>This week</p><h2>Figures</h2></div></header>
+          <div class="weekly-bars" id="weekly-bars"></div>
+          <div class="watch-list" id="watch-list"></div>
+        </aside>
+      </div>
+    </main>
+    <div class="master-toast" id="master-toast" role="status" aria-live="polite"></div>
+    <script src="../menu-api.js"></script>
+    <script src="./master.js"></script>
+  </body>
+</html>
