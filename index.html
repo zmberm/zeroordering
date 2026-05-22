@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zero Ordering</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="Zero Ordering">
+        <img src="./assets/zero-ordering-logo.png" alt="Zero Ordering" />
+      </a>
+      <div class="venue-chip" aria-label="Current restaurant">
+        <span>Ordering from</span>
+        <strong>Harbour Street Kitchen</strong>
+      </div>
+      <button class="basket-jump" id="basket-jump" type="button" aria-label="Open basket">
+        <span>Bag</span>
+        <b id="top-count">0</b>
+      </button>
+    </header>
+
+    <main class="customer-app">
+      <section class="hero" aria-label="Restaurant ordering hero">
+        <img src="./assets/order-hero.png" alt="Burger, wrap, fries, and takeaway packaging on a restaurant counter" />
+        <div class="hero-wash"></div>
+        <div class="hero-content">
+          <div class="hero-brandline">
+            <span class="live-dot"></span>
+            Taking direct orders now
+          </div>
+          <p>Harbour Street Kitchen</p>
+          <h1>Your table, sofa, or doorstep. Dinner lands beautifully.</h1>
+          <div class="hero-actions">
+            <button class="primary-action" id="browse-menu" type="button">Browse menu</button>
+            <div class="hero-facts" aria-label="Order facts">
+              <strong>20-30 min</strong>
+              <strong>4.8 rating</strong>
+              <strong>From GBP 2.50 delivery</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="restaurant-bar" aria-label="Restaurant details">
+        <div>
+          <p>Tonight</p>
+          <strong>Fresh from the kitchen</strong>
+        </div>
+        <div>
+          <p>Minimum order</p>
+          <strong>No minimum</strong>
+        </div>
+        <div>
+          <p>Direct offer</p>
+          <strong>DIRECT10 over GBP 18</strong>
+        </div>
+        <div>
+          <p>Allergy note</p>
+          <strong>Call before ordering</strong>
+        </div>
+      </section>
+
+      <div class="order-layout" id="menu">
+        <section class="menu-stage" aria-labelledby="menu-title">
+          <div class="menu-command">
+            <div>
+              <p>Order direct</p>
+              <h2 id="menu-title">Made for tonight</h2>
+            </div>
+            <label class="search-field">
+              <span>Search</span>
+              <input id="menu-search" type="search" placeholder="Burger, wings, shake" />
+            </label>
+          </div>
+
+          <div class="category-rail" id="category-filters" aria-label="Menu categories"></div>
+          <div class="feature-band">
+            <div>
+              <span>Most loved</span>
+              <strong>Dock Burger meal</strong>
+              <p>Make it yours with fries and a cold shake.</p>
+            </div>
+            <button type="button" id="quick-add">Quick add</button>
+          </div>
+          <div class="menu-grid" id="menu-grid"></div>
+        </section>
+
+        <aside class="checkout-card" id="basket" aria-live="polite">
+          <div class="basket-head">
+            <div>
+              <p>Your order</p>
+              <h2 id="cart-count">0 items</h2>
+            </div>
+            <button class="clear-button" id="clear-cart" type="button" aria-label="Clear basket" title="Clear basket">
+              Clear
+            </button>
+          </div>
+
+          <fieldset class="service-toggle">
+            <legend>Service</legend>
+            <label>
+              <input type="radio" name="fulfilment" value="Collection" checked />
+              <span>Collection</span>
+            </label>
+            <label>
+              <input type="radio" name="fulfilment" value="Delivery" />
+              <span>Delivery</span>
+            </label>
+          </fieldset>
+
+          <div class="cart-lines" id="cart-lines"></div>
+
+          <label class="promo-field">
+            Promo code
+            <span>
+              <input id="promo-code" type="text" placeholder="DIRECT10" maxlength="16" />
+              <button id="apply-promo" type="button">Apply</button>
+            </span>
+          </label>
+          <p class="promo-note" id="promo-note"></p>
+
+          <dl class="totals">
+            <div><dt>Subtotal</dt><dd id="subtotal">GBP 0.00</dd></div>
+            <div><dt>Ordering fee</dt><dd id="ordering-fee">GBP 0.00</dd></div>
+            <div><dt>Delivery</dt><dd id="delivery-fee">GBP 0.00</dd></div>
+            <div class="discount-row"><dt>Discount</dt><dd id="discount">-GBP 0.00</dd></div>
+            <div class="grand-total"><dt>Total</dt><dd id="grand-total">GBP 1.00</dd></div>
+          </dl>
+
+          <form class="checkout-form" id="checkout-form">
+            <div class="form-pair">
+              <label>
+                Name
+                <input required name="name" type="text" placeholder="Amina" />
+              </label>
+              <label>
+                Mobile
+                <input required name="phone" type="tel" placeholder="07123 456 789" />
+              </label>
+            </div>
+            <label class="address-field" hidden>
+              Delivery address
+              <input name="address" type="text" placeholder="12 Dock Lane" />
+            </label>
+            <button class="pay-button" type="submit">
+              <span>Place order</span>
+              <strong id="pay-total">GBP 1.00</strong>
+            </button>
+          </form>
+
+          <div class="order-confirmation" id="order-confirmation" hidden>
+            <span>Sent to the kitchen</span>
+            <strong id="confirmation-number"></strong>
+            <p id="confirmation-copy"></p>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <template id="menu-card-template">
+      <article class="menu-card">
+        <div class="dish-visual">
+          <span></span>
+        </div>
+        <div class="dish-copy">
+          <header>
+            <div>
+              <small></small>
+              <h3></h3>
+            </div>
+            <button class="add-button" type="button" aria-label="">+</button>
+          </header>
+          <p></p>
+          <footer>
+            <b></b>
+            <strong></strong>
+          </footer>
+        </div>
+      </article>
+    </template>
+
+    <div class="mobile-basket" id="mobile-basket">
+      <button type="button" id="mobile-basket-button">
+        <span><b id="mobile-count">0</b> items</span>
+        <strong id="mobile-total">GBP 1.00</strong>
+      </button>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./app.js"></script>
+  </body>
+</html>
