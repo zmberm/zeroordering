@@ -1,13 +1,6 @@
 const storageKey = "zero-customer-order";
 
-const menu = [
-  { id: "burger", name: "Dock Burger", category: "Burgers", price: 10.9, time: "Signature", description: "Charred beef, pepper relish, crisp lettuce, and glossy house sauce." },
-  { id: "wrap", name: "Fire Wrap", category: "Wraps", price: 9.4, time: "Hot", description: "Grilled chicken, lemon slaw, chilli yogurt, and soft flatbread." },
-  { id: "chips", name: "Sea Salt Fries", category: "Sides", price: 3.6, time: "Crisp", description: "Double-cooked fries finished with smoked tomato dip." },
-  { id: "wings", name: "Sticky Wings", category: "Sides", price: 6.8, time: "Glazed", description: "Six lacquered wings with pickled cucumber and sesame crunch." },
-  { id: "salad", name: "Herb Halloumi Bowl", category: "Fresh", price: 8.7, time: "Bright", description: "Warm halloumi, grains, herbs, pomegranate, and citrus dressing." },
-  { id: "shake", name: "Berry Shake", category: "Drinks", price: 4.5, time: "Cold", description: "Berry shake folded with vanilla and oat crumble." }
-];
+let menu = [];
 
 const currency = new Intl.NumberFormat("en-GB", {
   currency: "GBP",
@@ -43,7 +36,10 @@ function totalQuantity() {
 }
 
 function subtotal() {
-  return Object.entries(state.cart).reduce((sum, [id, quantity]) => sum + byId(id).price * quantity, 0);
+  return Object.entries(state.cart).reduce((sum, [id, quantity]) => {
+    const item = byId(id);
+    return item ? sum + item.price * quantity : sum;
+  }, 0);
 }
 
 function deliveryFee() {
@@ -72,7 +68,7 @@ function showToast(message) {
 
 function renderCategories() {
   const rail = $("#category-filters");
-  const categories = ["All", ...new Set(menu.map((item) => item.category))];
+  const categories = ["All", ...new Set(menu.filter((item) => item.active).map((item) => item.category))];
   rail.innerHTML = "";
   categories.forEach((category) => {
     const button = document.createElement("button");
@@ -97,7 +93,7 @@ function matchesMenu(item) {
 
 function renderMenu() {
   menuGrid.innerHTML = "";
-  const items = menu.filter(matchesMenu);
+  const items = menu.filter((item) => item.active).filter(matchesMenu);
 
   items.forEach((item) => {
     const node = menuTemplate.content.cloneNode(true);
@@ -119,6 +115,7 @@ function renderMenu() {
 }
 
 function addToCart(id) {
+  if (!byId(id) || !byId(id).active) return;
   state.cart[id] = (state.cart[id] || 0) + 1;
   saveState();
   renderCart();
@@ -157,7 +154,13 @@ function cartLine(id, quantity) {
 function renderCart() {
   const lines = $("#cart-lines");
   lines.innerHTML = "";
-  Object.entries(state.cart).forEach(([id, quantity]) => lines.append(cartLine(id, quantity)));
+  Object.entries(state.cart).forEach(([id, quantity]) => {
+    if (byId(id)) {
+      lines.append(cartLine(id, quantity));
+    } else {
+      delete state.cart[id];
+    }
+  });
 
   if (!totalQuantity()) {
     lines.innerHTML = '<p class="cart-empty">Your bag is ready for the first bite.</p>';
@@ -220,7 +223,7 @@ $("#browse-menu").addEventListener("click", () => $("#menu").scrollIntoView({ bl
 $("#basket-jump").addEventListener("click", () => $("#basket").scrollIntoView({ block: "start" }));
 $("#mobile-basket-button").addEventListener("click", () => $("#basket").scrollIntoView({ block: "start" }));
 $("#quick-add").addEventListener("click", () => {
-  ["burger", "chips", "shake"].forEach(addToCart);
+  ["burger", "chips", "shake"].filter(byId).forEach(addToCart);
 });
 
 $("#clear-cart").addEventListener("click", () => {
@@ -242,8 +245,13 @@ $("#checkout-form").addEventListener("submit", (event) => {
   submitOrder(event.currentTarget);
 });
 
-$("#promo-code").value = state.promo;
-$("#menu-search").value = state.query;
-renderCategories();
-renderMenu();
-renderCart();
+async function bootCustomerApp() {
+  menu = await ZeroMenuApi.listMenu();
+  $("#promo-code").value = state.promo;
+  $("#menu-search").value = state.query;
+  renderCategories();
+  renderMenu();
+  renderCart();
+}
+
+bootCustomerApp();

@@ -10,7 +10,7 @@ const mimeTypes = {
 };
 
 createServer((request, response) => {
-  const fileName = request.url === "/" ? "index.html" : request.url.slice(1);
+  const fileName = request.url.endsWith("/") ? `${request.url.slice(1)}index.html` : request.url.slice(1);
   const file = join(import.meta.dirname, fileName);
 
   response.setHeader("Content-Type", mimeTypes[extname(file)] || "application/octet-stream");

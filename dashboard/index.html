@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zero Ordering Dashboard</title>
+    <link rel="stylesheet" href="./dashboard.css" />
+  </head>
+  <body>
+    <header class="dashboard-topbar">
+      <img src="../assets/zero-ordering-logo.png" alt="Zero Ordering" />
+      <nav aria-label="Takeaway dashboard">
+        <strong>Harbour Street Kitchen</strong>
+        <a href="../" target="_blank" rel="noreferrer">Customer app</a>
+      </nav>
+    </header>
+
+    <main class="dashboard-shell">
+      <aside class="dashboard-nav">
+        <p>Takeaway system</p>
+        <button class="active" type="button">Menu</button>
+        <button type="button" disabled>Orders</button>
+        <button type="button" disabled>Opening times</button>
+        <button type="button" disabled>Delivery</button>
+        <button type="button" disabled>Promotions</button>
+      </aside>
+
+      <section class="dashboard-main" aria-labelledby="dashboard-title">
+        <header class="dashboard-heading">
+          <div>
+            <p>Menu management</p>
+            <h1 id="dashboard-title">Shape the menu customers order from.</h1>
+          </div>
+          <div class="heading-actions">
+            <button class="quiet-action" id="reset-menu" type="button">Reset demo menu</button>
+            <button class="save-action" id="save-menu" type="button">Save menu</button>
+          </div>
+        </header>
+
+        <div class="metrics" id="menu-metrics" aria-label="Menu metrics"></div>
+
+        <div class="dashboard-grid">
+          <section class="menu-library" aria-labelledby="library-title">
+            <div class="panel-head">
+              <div>
+                <p>Items</p>
+                <h2 id="library-title">Takeaway menu</h2>
+              </div>
+              <button id="new-item" type="button">New item</button>
+            </div>
+            <label class="dashboard-search">
+              <span>Search menu</span>
+              <input id="dashboard-search" type="search" placeholder="Burger, sides, drinks" />
+            </label>
+            <div class="menu-table" id="dashboard-items"></div>
+          </section>
+
+          <section class="editor-panel" aria-labelledby="editor-title">
+            <div class="panel-head">
+              <div>
+                <p>Item studio</p>
+                <h2 id="editor-title">Edit dish</h2>
+              </div>
+              <button class="quiet-action" id="duplicate-item" type="button">Duplicate</button>
+            </div>
+
+            <form id="menu-editor">
+              <div class="editor-grid">
+                <label>
+                  Item name
+                  <input required name="name" type="text" />
+                </label>
+                <label>
+                  Category
+                  <input required name="category" type="text" />
+                </label>
+                <label>
+                  Price
+                  <span class="price-input">
+                    <b>GBP</b>
+                    <input required min="0" name="price" step="0.05" type="number" />
+                  </span>
+                </label>
+                <label>
+                  Menu badge
+                  <input required maxlength="18" name="time" type="text" />
+                </label>
+              </div>
+              <label>
+                Description
+                <textarea required name="description" rows="5"></textarea>
+              </label>
+              <label class="live-switch">
+                <input name="active" type="checkbox" />
+                <span>Show this item to customers</span>
+              </label>
+              <div class="editor-actions">
+                <button class="danger-action" id="delete-item" type="button">Delete item</button>
+                <button class="save-action" type="submit">Apply item changes</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <template id="dashboard-item-template">
+      <article class="dashboard-item">
+        <button class="item-select" type="button">
+          <span>
+            <small></small>
+            <strong></strong>
+            <em></em>
+          </span>
+          <b></b>
+        </button>
+        <label>
+          <input class="item-live" type="checkbox" />
+          <span>Live</span>
+        </label>
+      </article>
+    </template>
+
+    <div class="dashboard-toast" id="dashboard-toast" role="status" aria-live="polite"></div>
+    <script src="../menu-api.js"></script>
+    <script src="./dashboard.js"></script>
+  </body>
+</html>
